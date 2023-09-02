@@ -1,0 +1,1 @@
+A Simple mock stock ticker application that uses gorilla websockets to stream stock prices.

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Chat Example</title>
+    <script type="text/javascript">
+      window.onload = function () {
+        let conn;
+        const stockStreamDiv = document.getElementById("stock_stream");
+
+        if (window["WebSocket"]) {
+          conn = new WebSocket("ws://" + document.location.host + "/ws");
+
+          conn.onclose = function (evt) {
+            let item = document.createElement("div");
+            item.innerHTML = "<b>Connection closed.</b>";
+            stockStreamDiv.appendChild(item)
+          };
+
+          conn.onmessage = function (evt) {
+            let { stock, price } = JSON.parse(evt.data);
+
+            let item = document.createElement("div");
+            item.innerText = `${stock} was ${price} on ${new Date().toString()}`;
+            stockStreamDiv.appendChild(item);
+          };
+          setTimeout(() => {
+            for (const stock of ["AAPL"]) {
+            conn.send(
+              JSON.stringify({
+                type: "SUBSCRIBE",
+                stock: stock,
+              })
+            );
+          }
+          }, 2000);
+          
+        } else {
+          let item = document.createElement("div");
+          item.innerHTML = "<b>Your browser does not support WebSockets.</b>";
+          stockStreamDiv.appendChild(item);
+        }
+      };
+    </script>
+  </head>
+  <body>
+    <h2>Stock price stream 📢</h2>
+    <div id="stock_stream"></div>
+  </body>
+</html>
